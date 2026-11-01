@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Looksmaxing Influencers: The Ultimate Trivia & Face Game</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0b0f19;
+      color: #f3f4f6;
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #60a5fa, #a855f7, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .card-glow {
+      box-shadow: 0 0 25px rgba(168, 85, 247, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.3);
+    }
+    .transition-all-custom {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  </style>
+</head>
+<div id="app-root" class="min-h-screen flex flex-col justify-between p-4 md:p-8 max-w-5xl mx-auto">
+  
+  <!-- Header / Scoreboard -->
+  <header class="w-full bg-slate-900/80 backdrop-blur-md rounded-2xl p-4 md:p-6 mb-6 card-glow flex flex-wrap justify-between items-center gap-4">
+    <div class="flex items-center gap-3">
+      <div class="p-3 bg-indigo-600/20 rounded-xl border border-indigo-500/30">
+        <i class="fa-solid font-bold text-2xl text-indigo-400">🔥</i>
+      </div>
+      <div>
+        <h1 class="text-xl md:text-2xl font-extrabold tracking-tight">LOOKSMAX<span class="gradient-text"> GAME</span></h1>
+        <p class="text-xs text-slate-400">Test je kennis over de 10 beste influencers</p>
+      </div>
+    </div>
+
+    <!-- Stats display -->
+    <div class="flex items-center gap-4 bg-slate-950/60 px-4 py-2 rounded-xl border border-slate-800">
+      <div class="text-center px-2">
+        <span class="block text-xs text-slate-400 font-semibold uppercase">Score</span>
+        <span id="score-val" class="text-xl font-black text-amber-400">0</span>
+      </div>
+      <div class="h-8 w-px bg-slate-800"></div>
+      <div class="text-center px-2">
+        <span class="block text-xs text-slate-400 font-semibold uppercase">Streak</span>
+        <span id="streak-val" class="text-xl font-black text-purple-400">0🔥</span>
+      </div>
+      <div class="h-8 w-px bg-slate-800"></div>
+      <div class="text-center px-2">
+        <span class="block text-xs text-slate-400 font-semibold uppercase">Vraag</span>
+        <span id="progress-val" class="text-xl font-black text-emerald-400">1/10</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Game Container -->
+  <main id="game-container" class="flex-grow flex flex-col justify-center">
+    
+    <!-- Quiz Card Screen -->
+    <div id="quiz-screen" class="bg-slate-900/90 rounded-3xl p-6 md:p-8 card-glow transition-all-custom">
+      
+      <!-- Influencer Card / Question Header -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center mb-8">
+        
+        <!-- Face Avatar Display -->
+        <div class="flex flex-col items-center justify-center text-center">
+          <div class="relative group">
+            <div id="face-frame" class="w-36 h-36 md:w-44 md:h-44 rounded-2xl overflow-hidden border-4 border-indigo-500/40 shadow-2xl bg-slate-950 flex items-center justify-center transition-all-custom">
+              <img id="influencer-img" src="" alt="Influencer Face" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x400/1e1b4b/ffffff?text=Influencer+Face'">
+            </div>
+            <div class="absolute -bottom-3 bg-indigo-600 text-xs font-bold px-3 py-1 rounded-full text-white shadow-lg left-1/2 transform -translate-x-1/2">
+              <span id="platform-tag">YouTube</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question & Hint Details -->
+        <div class="md:col-span-2 space-y-3">
+          <div class="inline-flex items-center gap-2 bg-indigo-950/60 text-indigo-300 text-xs font-bold px-3 py-1 rounded-full border border-indigo-800/40">
+            <i class="fa-solid fa-circle-question"></i> Wie is deze influencer?
+          </div>
+          <h2 id="question-title" class="text-lg md:text-xl font-bold text-white leading-snug">
+            Vraag wordt geladen...
+          </h2>
+          <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800 text-sm text-slate-300 space-y-2">
+            <p><strong class="text-indigo-400">Focus:</strong> <span id="hint-focus">-</span></p>
+            <p><strong class="text-purple-400">Waarom volgen:</strong> <span id="hint-why">-</span></p>
+            <p><strong class="text-emerald-400">Het beste voor:</strong> <span id="hint-best">-</span></p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Multiple Choice Options -->
+      <div id="options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Buttons injected dynamically -->
+      </div>
+
+      <!-- Feedback Banner -->
+      <div id="feedback-box" class="hidden mt-6 p-4 rounded-xl text-center font-bold text-base transition-all-custom"></div>
+
+    </div>
+
+    <!-- Final Score Screen (Hidden by default) -->
+    <div id="score-screen" class="hidden bg-slate-900/90 rounded-3xl p-8 card-glow text-center space-y-6">
+      <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-tr from-amber-500 to-purple-600 flex items-center justify-center text-4xl shadow-xl">
+        👑
+      </div>
+      <div>
+        <h2 class="text-3xl font-extrabold text-white">Quiz Voltooid!</h2>
+        <p id="rank-title" class="text-xl font-bold gradient-text mt-2">Jouw Mog Level: High Tier Mogger</p>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4 max-w-md mx-auto bg-slate-950 p-4 rounded-2xl border border-slate-800">
+        <div>
+          <span class="block text-xs text-slate-400">Totaal Score</span>
+          <span id="final-score" class="text-2xl font-black text-amber-400">0</span>
+        </div>
+        <div>
+          <span class="block text-xs text-slate-400">Goed</span>
+          <span id="final-correct" class="text-2xl font-black text-emerald-400">0/10</span>
+        </div>
+        <div>
+          <span class="block text-xs text-slate-400">Max Streak</span>
+          <span id="final-streak" class="text-2xl font-black text-purple-400">0</span>
+        </div>
+      </div>
+
+      <p id="rank-desc" class="text-sm text-slate-300 max-w-lg mx-auto">
+        Je kent de looksmaxxing scene en influencers door en door!
+      </p>
+
+      <button id="restart-btn" onclick="startGame()" class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 font-bold rounded-xl text-white transition-all shadow-lg hover:shadow-indigo-500/25">
+        Opnieuw Spelen <i class="fa-solid fa-rotate-right ml-2"></i>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-8 text-center text-xs text-slate-500">
+    Looksmaxing & Male Self-Improvement Influencers Quiz Game
+  </footer>
+
+</div>
+
+<script>
+  // Data for all 10 Influencers from user prompt
+  const INFLUENCERS_DATA = [
+    {
+      name: "Derek (More Plates More Dates)",
+      platform: "YouTube (2M+ subs), Podcast",
+      focus: "Fitness, hormonen, haaruitval, prestatie optimalisatie",
+      why: "Wetenschappelijke benadering met onderzoekscitaties, haaruitval & huidverzorging",
+      bestFor: "Gevorderden die de wetenschap achter optimalisatie willen begrijpen",
+      image: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=400&q=80",
+      avatarBg: "#1e1b4b"
+    },
+    {
+      name: "Kareem Shami (Syrian Psycho)",
+      platform: "TikTok (1.8M+ followers), Instagram",
+      focus: "Looksmaxxing transformaties, gezichtsoptimalisatie (Mogwart's Academy)",
+      why: "Gedocumenteerde eigen transformatie, behandelt zowel soft als hardmaxxing",
+      bestFor: "Visuele leerders die echte voor/na transformaties willen zien",
+      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+      avatarBg: "#311b92"
+    },
+    {
+      name: "Brett Maverick",
+      platform: "YouTube (1.7M+ subs), Instagram",
+      focus: "Mannelijke model tips, verzorging (grooming), stijl, gezicht",
+      why: "Echte ervaring als professioneel model, praktische tier lists van methodes",
+      bestFor: "Mensen die gepolijste tips willen over verzorging en kledingstijl",
+      image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80",
+      avatarBg: "#0d47a1"
+    },
+    {
+      name: "Dillon Latham",
+      platform: "TikTok (1.7M+ followers), YouTube",
+      focus: "Grooming hacks, snelle looksmaxxtips, tanden bleken, skincare",
+      why: "Focus op snelle resultaten (easy wins), behapt de basis voor beginners",
+      bestFor: "Mensen die snelle, hapklare TikTok-content direct willen toepassen",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+      avatarBg: "#006064"
+    },
+    {
+      name: "Mike Mew (Orthotropics)",
+      platform: "YouTube (1M+ subs)",
+      focus: "Mewing techniek, gezichtsontwikkeling, tonghouding",
+      why: "Oorspronkelijke bedenker van mewing, decennia aan orthodontische expertise",
+      bestFor: "Iedereen die serieus is over mewing en van de bron wil leren",
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80",
+      avatarBg: "#1b5e20"
+    },
+    {
+      name: "Clavicular",
+      platform: "Kick, TikTok, Twitch (~500K+)",
+      focus: "Looksmaxxing, hardmaxxing, fysiek optimalisatie",
+      why: "Hoge energie, ongefilterde streams, viraal gegaan in 2025",
+      bestFor: "Mensen die entertainment zoeken en advies zelfstandig kunnen onderzoeken",
+      image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80",
+      avatarBg: "#bf360c"
+    },
+    {
+      name: "1stMan",
+      platform: "YouTube (300K+ subs)",
+      focus: "Mannelijke zelfverbetering, dating dynamiek, 'male advantage'",
+      why: "Focus op hoe mannen tijdlijnen en strategieën kunnen benutten op de datingmarkt",
+      bestFor: "Mannen die uiterlijk combineren met bredere dating- & levensstrategie",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+      avatarBg: "#4a148c"
+    },
+    {
+      name: "Wheat Waffles",
+      platform: "YouTube (166K+ subs), Patreon",
+      focus: "Gezichtsanalyse, blackpill esthetiek, 1-10 beoordelingen",
+      why: "Data-gedreven benadering van aantrekkelijkheid, analytische gezichtsratings",
+      bestFor: "Mensen die objectieve analytische breakdowns zoeken van gezichten",
+      image: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=400&q=80",
+      avatarBg: "#880e4f"
+    },
+    {
+      name: "Alex Costa",
+      platform: "YouTube (3M+ subs), Instagram",
+      focus: "Mannenstijl, verzorging (grooming), kapsels",
+      why: "Toegankelijk advies zonder zware termen, uitstekende productreviews",
+      bestFor: "Mannen die hun stijl en grooming simpel en professioneel willen upgraden",
+      image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80",
+      avatarBg: "#3e2723"
+    },
+    {
+      name: "Jose Zuniga (Teaching Men's Fashion)",
+      platform: "YouTube (6M+ subs), TikTok",
+      focus: "Mode, stijl-upgrades op budget, pasvorm, zelfvertrouwen",
+      why: "Grootste mannenfashion kanaal, nadruk op hoe kleding past boven dure merken",
+      bestFor: "Iedereen die direct beter passende kleding en uitstraling wil",
+      image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
+      avatarBg: "#263238"
+    }
+  ];
+
+  // Game state
+  let currentQuestions = [];
+  let currentIndex = 0;
+  let score = 0;
+  let streak = 0;
+  let maxStreak = 0;
+  let correctCount = 0;
+  let isAnswered = false;
+
+  // Shuffle Helper
+  function shuffleArray(arr) {
+    return [...arr].sort(() => Math.random() - 0.5);
+  }
+
+  function startGame() {
+    currentQuestions = shuffleArray(INFLUENCERS_DATA);
+    currentIndex = 0;
+    score = 0;
+    streak = 0;
+    maxStreak = 0;
+    correctCount = 0;
+
+    document.getElementById("score-screen").classList.add("hidden");
+    document.getElementById("quiz-screen").classList.remove("hidden");
+
+    updateScoreboard();
+    loadQuestion();
+  }
+
+  function updateScoreboard() {
+    document.getElementById("score-val").textContent = score;
+    document.getElementById("streak-val").textContent = streak + "🔥";
+    document.getElementById("progress-val").textContent = (currentIndex + 1) + "/" + currentQuestions.length;
+  }
+
+  function loadQuestion() {
+    isAnswered = false;
+    const current = currentQuestions[currentIndex];
+    
+    // Hide feedback
+    const feedbackBox = document.getElementById("feedback-box");
+    feedbackBox.className = "hidden mt-6 p-4 rounded-xl text-center font-bold text-base transition-all-custom";
+    
+    // Set influencer details
+    document.getElementById("influencer-img").src = current.image;
+    document.getElementById("platform-tag").textContent = current.platform;
+    document.getElementById("question-title").textContent = `Welke influencer is gespecialiseerd in ${current.focus.toLowerCase()}?`;
+    document.getElementById("hint-focus").textContent = current.focus;
+    document.getElementById("hint-why").textContent = current.why;
+    document.getElementById("hint-best").textContent = current.bestFor;
+
+    // Generate options (Correct answer + 3 random incorrect)
+    const incorrects = INFLUENCERS_DATA.filter(i => i.name !== current.name);
+    const shuffledIncorrects = shuffleArray(incorrects).slice(0, 3);
+    const allOptions = shuffleArray([current, ...shuffledIncorrects]);
+
+    const optionsGrid = document.getElementById("options-grid");
+    optionsGrid.innerHTML = "";
+
+    allOptions.forEach(opt => {
+      const btn = document.createElement("button");
+      btn.className = "w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-100 font-semibold rounded-xl text-left border border-slate-700 transition-all-custom flex items-center justify-between card-hover";
+      btn.innerHTML = `<span>${opt.name}</span> <i class="fa-solid fa-chevron-right text-xs opacity-50"></i>`;
+      btn.onclick = () => checkAnswer(opt.name, current.name, btn);
+      optionsGrid.appendChild(btn);
+    });
+
+    updateScoreboard();
+  }
+
+  function checkAnswer(selectedName, correctName, btnElement) {
+    if (isAnswered) return;
+    isAnswered = true;
+
+    const feedbackBox = document.getElementById("feedback-box");
+    const optionButtons = document.getElementById("options-grid").children;
+
+    if (selectedName === correctName) {
+      // Correct!
+      streak++;
+      if (streak > maxStreak) maxStreak = streak;
+      const pointsGain = 100 + (streak * 20);
+      score += pointsGain;
+      correctCount++;
+
+      btnElement.className = "w-full py-3 px-4 bg-emerald-600 text-white font-semibold rounded-xl text-left border border-emerald-500 shadow-lg flex items-center justify-between";
+      btnElement.innerHTML = `<span>${selectedName}</span> <i class="fa-solid fa-circle-check"></i>`;
+
+      feedbackBox.textContent = ` Correct! +${pointsGain} Mog Points! 🔥`;
+      feedbackBox.className = "mt-6 p-4 rounded-xl text-center font-bold text-base bg-emerald-950/80 border border-emerald-700 text-emerald-300 block";
+    } else {
+      // Incorrect
+      streak = 0;
+      btnElement.className = "w-full py-3 px-4 bg-rose-600 text-white font-semibold rounded-xl text-left border border-rose-500 flex items-center justify-between";
+      btnElement.innerHTML = `<span>${selectedName}</span> <i class="fa-solid fa-circle-xmark"></i>`;
+
+      // Highlight correct answer
+      Array.from(optionButtons).forEach(btn => {
+        if (btn.textContent.includes(correctName)) {
+          btn.className = "w-full py-3 px-4 bg-emerald-600/80 text-white font-semibold rounded-xl text-left border border-emerald-500 flex items-center justify-between";
+        }
+      });
+
+      feedbackBox.textContent = ` Fout! Dit is ${correctName}.`;
+      feedbackBox.className = "mt-6 p-4 rounded-xl text-center font-bold text-base bg-rose-950/80 border border-rose-700 text-rose-300 block";
+    }
+
+    updateScoreboard();
+
+    // Next question delay
+    setTimeout(() => {
+      currentIndex++;
+      if (currentIndex < currentQuestions.length) {
+        loadQuestion();
+      } else {
+        endGame();
+      }
+    }, 1800);
+  }
+
+  function endGame() {
+    document.getElementById("quiz-screen").classList.add("hidden");
+    document.getElementById("score-screen").classList.remove("hidden");
+
+    document.getElementById("final-score").textContent = score;
+    document.getElementById("final-correct").textContent = `${correctCount}/10`;
+    document.getElementById("final-streak").textContent = maxStreak;
+
+    const rankTitle = document.getElementById("rank-title");
+    const rankDesc = document.getElementById("rank-desc");
+
+    if (correctCount === 10) {
+      rankTitle.textContent = "🏆 Rank: ASCENDED MOGGER (100%)";
+      rankDesc.textContent = "Perfecte score! Je bent een absolute expert op het gebied van looksmaxing influencers en hun kennis.";
+    } else if (correctCount >= 7) {
+      rankTitle.textContent = "⚡ Rank: High Tier Mogger";
+      rankDesc.textContent = "Zeer goed gedaan! Je kent bijna alle specifieke details van de top influencers.";
+    } else if (correctCount >= 5) {
+      rankTitle.textContent = "📈 Rank: Mid Tier Normie";
+      rankDesc.textContent = "Aardige poging! Je kent de bekendste namen, maar er valt nog wat te leren.";
+    } else {
+      rankTitle.textContent = "⚠️ Rank: Sub5 Beginner";
+      rankDesc.textContent = "Tijd om meer video's te bekijken van Derek, Syrian Psycho en Wheat Waffles om je kennis te vergroten!";
+    }
+  }
+
+  // Start on load
+  window.onload = startGame;
+</script>
+</html>
